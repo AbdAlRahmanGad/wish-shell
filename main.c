@@ -67,13 +67,17 @@ int main(int argc , char *argv[]) {
     ///// ls done
     ///// exit done
     ////// cat done
+    ////// pwd Done
+    /////   exit issue Done
 
+    /////   path
 
-    ////// pwd
     ////// look at the commnad list
     ////// look at the commmands -l  -wall    {if statement}
-    /////
-    ////[
+
+
+
+
     /// 	cp		mkdir		pwd
     //mv		rm
     //cat			rmdir
@@ -90,9 +94,15 @@ int main(int argc , char *argv[]) {
         int cnt=0;
         char* arguments[5];
         while ((s = strsep(&cntString, " ")) != NULL ) {
-            arguments[cnt]=s;
-            cnt++;
+            if(strcmp(s,  "\0") == 0 || strcmp(s,  "\n") == 0)
+            {
+                continue;
+            }
+                arguments[cnt]=s;
+                cnt++;
         }
+//        printf("\n%d",cnt);
+
         arguments[cnt] = NULL;
         int x=0;
             while ((s = strsep(&tmp, " ")) != NULL ) {
@@ -101,8 +111,7 @@ int main(int argc , char *argv[]) {
                         if(cnt==1)
                         exit(0);
                         else
-                            printf("%s","ERROR");
-//                            errorMessage();
+                           errMessage();
                     } else if ((strcmp(s, "ls") == 0 || strcmp(s, "ls\n") == 0)) {
                         commandNow = 1;
                         rc = fork();
@@ -110,15 +119,9 @@ int main(int argc , char *argv[]) {
                         commandNow = 2;
                         if(cnt == 2)
                         rc = fork();
-//                        else
-//                            printf("%s","ERROR");
-//                            errorMessage();
                     }else if (strcmp(s, "cat") == 0){
                         commandNow = 3;
                             rc = fork();
-//                        else
-//                            printf("%s","ERROR");
-//                            errorMessage();
                     }else if ((strcmp(s, "pwd") ==0||strcmp(s, "pwd\n")== 0) && cnt == 1){
                         commandNow = 4;
                         rc = fork();
@@ -137,13 +140,7 @@ int main(int argc , char *argv[]) {
                                     errMessage();
                             }
                         }else if (commandNow == 3){
-//                            char* path;
-//                            while ((path = strsep(&arguments[1], "\n")) != NULL ) {
-//                                break;
-//                            }
                             catCommand(cmd_argv,arguments);
-//                            FILE* fp = fopen(path, "r");
-//                            printAll(fp);
                         }else if (commandNow == 4){
                             pwdCommand(cmd_argv);
                         }
@@ -165,15 +162,3 @@ int main(int argc , char *argv[]) {
     }
     return 0;
 }
-
-
-//void printAll(FILE *fp) {
-//    char * line = NULL;
-//    size_t len = 0;
-//    if (fp == NULL){
-//        exit(EXIT_FAILURE);
-//    }
-//    while ((getline(&line, &len, fp)) != -1) {
-//        printf("%s", line);
-//    }
-//}
