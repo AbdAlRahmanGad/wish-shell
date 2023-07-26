@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 
+void pathCommand(char *pString[5]);
+
 //void printAll(FILE *pFile);
 void errMessage(){
     char error_message[30] = "An error has occurred\n";
@@ -30,6 +32,38 @@ void lsCommand( char *cmd_argv[10],char *args[]){
     }
 cmd_argv[0]="ls";
     execv(binaryPath, cmd_argv);
+}
+char *paths[100];
+
+void allCommand( char *cmd_argv[10],char *args[] , char *command){
+
+    int i = 1;
+    for (; i < 5; ++i) {
+        if(args[i]== NULL){
+            cmd_argv[i] = NULL;
+            break;
+        }
+        cmd_argv[i] = args[i];
+    }
+    char* path =  strdup(cmd_argv[i-1]);
+    while ((cmd_argv[i-1] = strdup(strsep(&path, "\n"))) != NULL ) {
+        break;
+    }
+//    cmd_argv[0]= command;
+
+//    char *binaryPath = "/bin/";
+
+//    cmd_argv[0] = binaryPath;
+    for (int j = 0; j < 1; ++j) {
+        paths[0] = "/bin";
+        paths[0] = "/usr";
+        command = "/ls";
+        cmd_argv[0] = strcat(paths[j],command);
+        execv(cmd_argv[0], cmd_argv);
+        printf("%s\n ",cmd_argv[0]);
+
+
+    }
 }
 void catCommand( char *cmd_argv[10],char *args[]){
     char *binaryPath = "/bin/cat";
@@ -70,12 +104,13 @@ int main(int argc , char *argv[]) {
     ////// pwd Done
     /////   exit issue Done
 
-    /////   path
+    /////   path  ?????????????????????????????????????????????????????????????????????
 
     ////// look at the commnad list
     ////// look at the commmands -l  -wall    {if statement}
 
-
+    ////// batch mode
+    ////// redirection
 
 
     /// 	cp		mkdir		pwd
@@ -84,7 +119,7 @@ int main(int argc , char *argv[]) {
     //cls
 
 
-
+//    access(
 
 
     ///// batch mode
@@ -126,11 +161,15 @@ int main(int argc , char *argv[]) {
                         commandNow = 4;
                         rc = fork();
 
+                    }else if (strcmp(s, "path") == 0){
+                        commandNow = 5;
+                        rc = fork();
                     }
                     if (rc == 0) {
                         char *cmd_argv[10];
                         if (commandNow == 1) {
-                            lsCommand(cmd_argv,arguments);
+//                            lsCommand(cmd_argv,arguments);
+                            allCommand(cmd_argv,arguments,arguments[0]);
                         } else if (commandNow == 2) {
                             char* path;
                             while ((path = strsep(&arguments[1], "\n")) != NULL ) {
@@ -143,6 +182,9 @@ int main(int argc , char *argv[]) {
                             catCommand(cmd_argv,arguments);
                         }else if (commandNow == 4){
                             pwdCommand(cmd_argv);
+                        }
+                        else if (commandNow == 5){
+                            pathCommand(arguments);
                         }
 // do some set up work
 //                (void) close(STDOUT_FILENO); // no longer can print to the screen
@@ -161,4 +203,20 @@ int main(int argc , char *argv[]) {
 
     }
     return 0;
+}
+
+void pathCommand(char *pString[5]) {
+    //    Important: Note that the shell itself does not implement ls or other commands (except built-ins).
+    //    All it does is find those executables in one of the
+    //    directories specified by path and create a new process to run them.
+//            To check if a particular file exists in a directory and is executable,
+//            consider the access() system call. For example, when the user types ls,
+//            and path is set to include both /bin and /usr/bin, try access("/bin/ls", X_OK).
+//            If that fails, try "/usr/bin/ls". If that fails too, it is an error.
+//            Your initial shell path should contain one directory: /bin
+//if
+//if (access("/bin/ls", X_OK)){
+
+//}
+//    path /bin /usr/bin
 }
