@@ -14,25 +14,6 @@ void errMessage(){
     char error_message[30] = "An error has occurred\n";
     write(STDERR_FILENO, error_message, strlen(error_message));
 }
-//void lsCommand( char *cmd_argv[10],char *args[]){
-//        char *binaryPath = "/bin/ls";
-//
-//    cmd_argv[0] = binaryPath;
-//    int i = 1;
-//    for (; i < 5; ++i) {
-//        if(args[i]== NULL){
-//            cmd_argv[i] = NULL;
-//            break;
-//        }
-//        cmd_argv[i] = args[i];
-//    }
-//    char* path =  strdup(cmd_argv[i-1]);
-//    while ((cmd_argv[i-1] = strdup(strsep(&path, "\n"))) != NULL ) {
-//        break;
-//    }
-//cmd_argv[0]="ls";
-//    execv(binaryPath, cmd_argv);
-//}
 char *paths[100];
 void allCommand( char *cmd_argv[10],char *args[] , char *command){
     int i = 1;
@@ -70,31 +51,6 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command){
                 printf("%s", "error");
 
 }
-//void catCommand( char *cmd_argv[10],char *args[]){
-//    char *binaryPath = "/bin/cat";
-//    cmd_argv[0] = binaryPath;
-//    int i = 1;
-//    for (; i < 5; ++i) {
-//        if(args[i]== NULL){
-//            cmd_argv[i] = NULL;
-//            break;
-//        }
-//        cmd_argv[i] = args[i];
-//    }
-//    char* path =  strdup(cmd_argv[i-1]);
-//    while ((cmd_argv[i-1] = strdup(strsep(&path, "\n"))) != NULL ) {
-//        break;
-//    }
-//    cmd_argv[i]= NULL;
-//    execv(binaryPath, cmd_argv);
-//
-//}
-//void pwdCommand( char *cmd_argv[10]){
-//    char *binaryPath = "/bin/pwd";
-//    cmd_argv[0] = binaryPath;
-//    cmd_argv[1] = NULL;
-//    execv(binaryPath, cmd_argv);
-//}
 int main(int argc , char *argv[]) {
     printf("wish> ");
     paths[0] = "/bin/";
@@ -107,13 +63,7 @@ int main(int argc , char *argv[]) {
     ///// cd done
     ///// ls done
     ///// exit done
-    ////// cat done
-    ////// pwd Done
-    /////   exit issue Done
-
-    /////   path  ?????????????????????????????????????????????????????????????????????
-
-    ////// look at the commnad list
+    ///// exit issue Done
     ////// look at the commmands -l  -wall    {if statement}    Done
 
     ////// batch mode
@@ -122,11 +72,7 @@ int main(int argc , char *argv[]) {
 
 ///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
 ///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
-///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
-///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
-///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
-///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
-///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
+///// remainng Path Commands and check '/' in path commands and pathc mode and redirection
 
 
     ///// batch mode
@@ -155,29 +101,15 @@ int main(int argc , char *argv[]) {
                         else
                            errMessage();
                     }
-
                     else if (strcmp(s, "cd") == 0) {
                         commandNow = 2;
                         if(cnt == 2)
                         rc = fork();
                     }
-//                    else if (strcmp(s, "cat") == 0){
-//                        commandNow = 3;
-//                            rc = fork();
-//                    }
-//                    else if ((strcmp(s, "pwd") ==0||strcmp(s, "pwd\n")== 0) && cnt == 1){
-//                        commandNow = 4;
-//                        rc = fork();
-//
-//                    }
                     else if (strcmp(s, "path") == 0){
                         commandNow = 5;
                         rc = fork();
                     }
-//                    else if ((strcmp(s, "ls") == 0 || strcmp(s, "ls\n") == 0)) {
-//                        commandNow = 1;
-//                        rc = fork();
-//                    }
                     else{
                         commandNow = 1;
                         rc = fork();
@@ -185,32 +117,19 @@ int main(int argc , char *argv[]) {
                     if (rc == 0) {
                         char *cmd_argv[10];
                         if (commandNow == 1) {
-//                            lsCommand(cmd_argv,arguments);
-//                            printf("%s",arguments[0]);
-
                             allCommand(cmd_argv,arguments,arguments[0]);
                         } else if (commandNow == 2) {
-                            char* path;
-                            while ((path = strsep(&arguments[1], "\n")) != NULL ) {
+                            char *path;
+                            while ((path = strsep(&arguments[1], "\n")) != NULL) {
                                 break;
                             }
-                                if (chdir(path) == -1) {
-                                    errMessage();
+                            if (chdir(path) == -1) {
+                                errMessage();
                             }
                         }
-//                        else if (commandNow == 3){
-//                            catCommand(cmd_argv,arguments);
-//                        }else if (commandNow == 4){
-//                            pwdCommand(cmd_argv);
-//                        }
-                        else if (commandNow == 5){
+                        else if (commandNow == 5) {
                             pathCommand(arguments);
                         }
-// do some set up work
-//                (void) close(STDOUT_FILENO); // no longer can print to the screen
-//                open("output.txt", O_WRONLY | O_CREAT | O_TRUNC);
-// if successful, doesn't return
-//                        printf("failed!\n");
                     }
 /// repository
                 }x++;
