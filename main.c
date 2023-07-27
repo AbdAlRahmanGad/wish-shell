@@ -14,60 +14,27 @@ void errMessage(){
     char error_message[30] = "An error has occurred\n";
     write(STDERR_FILENO, error_message, strlen(error_message));
 }
-void lsCommand( char *cmd_argv[10],char *args[]){
-        char *binaryPath = "/bin/ls";
-
-    cmd_argv[0] = binaryPath;
-    int i = 1;
-    for (; i < 5; ++i) {
-        if(args[i]== NULL){
-            cmd_argv[i] = NULL;
-            break;
-        }
-        cmd_argv[i] = args[i];
-    }
-    char* path =  strdup(cmd_argv[i-1]);
-    while ((cmd_argv[i-1] = strdup(strsep(&path, "\n"))) != NULL ) {
-        break;
-    }
-cmd_argv[0]="ls";
-    execv(binaryPath, cmd_argv);
-}
-char *paths[100];
-
-void allCommand( char *cmd_argv[10],char *args[] , char *command){
-
-    int i = 1;
-    for (; i < 5; ++i) {
-        if(args[i]== NULL){
-            cmd_argv[i] = NULL;
-            break;
-        }
-        cmd_argv[i] = args[i];
-    }
-    char* path =  strdup(cmd_argv[i-1]);
-    while ((cmd_argv[i-1] = strdup(strsep(&path, "\n"))) != NULL ) {
-        break;
-    }
-//    cmd_argv[0]= command;
-
-//    char *binaryPath = "/bin/";
-
+//void lsCommand( char *cmd_argv[10],char *args[]){
+//        char *binaryPath = "/bin/ls";
+//
 //    cmd_argv[0] = binaryPath;
-    for (int j = 0; j < 1; ++j) {
-        paths[0] = "/bin";
-        paths[0] = "/usr";
-        command = "/ls";
-        cmd_argv[0] = strcat(paths[j],command);
-        execv(cmd_argv[0], cmd_argv);
-        printf("%s\n ",cmd_argv[0]);
-
-
-    }
-}
-void catCommand( char *cmd_argv[10],char *args[]){
-    char *binaryPath = "/bin/cat";
-    cmd_argv[0] = binaryPath;
+//    int i = 1;
+//    for (; i < 5; ++i) {
+//        if(args[i]== NULL){
+//            cmd_argv[i] = NULL;
+//            break;
+//        }
+//        cmd_argv[i] = args[i];
+//    }
+//    char* path =  strdup(cmd_argv[i-1]);
+//    while ((cmd_argv[i-1] = strdup(strsep(&path, "\n"))) != NULL ) {
+//        break;
+//    }
+//cmd_argv[0]="ls";
+//    execv(binaryPath, cmd_argv);
+//}
+char *paths[100];
+void allCommand( char *cmd_argv[10],char *args[] , char *command){
     int i = 1;
     for (; i < 5; ++i) {
         if(args[i]== NULL){
@@ -76,22 +43,62 @@ void catCommand( char *cmd_argv[10],char *args[]){
         }
         cmd_argv[i] = args[i];
     }
-    char* path =  strdup(cmd_argv[i-1]);
-    while ((cmd_argv[i-1] = strdup(strsep(&path, "\n"))) != NULL ) {
+    char* path =  strdup(command);
+    while ((command = strdup(strsep(&path, "\n"))) != NULL ) {
         break;
     }
-    cmd_argv[i]= NULL;
-    execv(binaryPath, cmd_argv);
+    if(i!=1) {
+        char *p = strdup(cmd_argv[i - 1]);
+        while ((cmd_argv[i - 1] = strdup(strsep(&p, "\n"))) != NULL) {
+            break;
+        }
+    }
+
+    paths[0] = "/bin/";
+    for (int j = 0; j < 100; ++j) {
+        char result[100];
+    strcpy(result,paths[j]); // copy string one into the result.
+    strcat(result,command);
+        cmd_argv[0] = result;
+
+        if (access(result, X_OK) == 0){
+            execv(result, cmd_argv);
+        }else{
+            printf("%s", command);
+        }
+    }
+                printf("%s", "error");
 
 }
-void pwdCommand( char *cmd_argv[10]){
-    char *binaryPath = "/bin/pwd";
-    cmd_argv[0] = binaryPath;
-    cmd_argv[1] = NULL;
-    execv(binaryPath, cmd_argv);
-}
+//void catCommand( char *cmd_argv[10],char *args[]){
+//    char *binaryPath = "/bin/cat";
+//    cmd_argv[0] = binaryPath;
+//    int i = 1;
+//    for (; i < 5; ++i) {
+//        if(args[i]== NULL){
+//            cmd_argv[i] = NULL;
+//            break;
+//        }
+//        cmd_argv[i] = args[i];
+//    }
+//    char* path =  strdup(cmd_argv[i-1]);
+//    while ((cmd_argv[i-1] = strdup(strsep(&path, "\n"))) != NULL ) {
+//        break;
+//    }
+//    cmd_argv[i]= NULL;
+//    execv(binaryPath, cmd_argv);
+//
+//}
+//void pwdCommand( char *cmd_argv[10]){
+//    char *binaryPath = "/bin/pwd";
+//    cmd_argv[0] = binaryPath;
+//    cmd_argv[1] = NULL;
+//    execv(binaryPath, cmd_argv);
+//}
 int main(int argc , char *argv[]) {
     printf("wish> ");
+    paths[0] = "/bin/";
+
     char *text = NULL;
     size_t lengh=0;
     char*s;
@@ -107,19 +114,19 @@ int main(int argc , char *argv[]) {
     /////   path  ?????????????????????????????????????????????????????????????????????
 
     ////// look at the commnad list
-    ////// look at the commmands -l  -wall    {if statement}
+    ////// look at the commmands -l  -wall    {if statement}    Done
 
     ////// batch mode
     ////// redirection
 
 
-    /// 	cp		mkdir		pwd
-    //mv		rm
-    //cat			rmdir
-    //cls
-
-
-//    access(
+///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
+///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
+///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
+///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
+///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
+///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
+///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
 
 
     ///// batch mode
@@ -147,28 +154,40 @@ int main(int argc , char *argv[]) {
                         exit(0);
                         else
                            errMessage();
-                    } else if ((strcmp(s, "ls") == 0 || strcmp(s, "ls\n") == 0)) {
-                        commandNow = 1;
-                        rc = fork();
-                    } else if (strcmp(s, "cd") == 0) {
+                    }
+
+                    else if (strcmp(s, "cd") == 0) {
                         commandNow = 2;
                         if(cnt == 2)
                         rc = fork();
-                    }else if (strcmp(s, "cat") == 0){
-                        commandNow = 3;
-                            rc = fork();
-                    }else if ((strcmp(s, "pwd") ==0||strcmp(s, "pwd\n")== 0) && cnt == 1){
-                        commandNow = 4;
-                        rc = fork();
-
-                    }else if (strcmp(s, "path") == 0){
+                    }
+//                    else if (strcmp(s, "cat") == 0){
+//                        commandNow = 3;
+//                            rc = fork();
+//                    }
+//                    else if ((strcmp(s, "pwd") ==0||strcmp(s, "pwd\n")== 0) && cnt == 1){
+//                        commandNow = 4;
+//                        rc = fork();
+//
+//                    }
+                    else if (strcmp(s, "path") == 0){
                         commandNow = 5;
+                        rc = fork();
+                    }
+//                    else if ((strcmp(s, "ls") == 0 || strcmp(s, "ls\n") == 0)) {
+//                        commandNow = 1;
+//                        rc = fork();
+//                    }
+                    else{
+                        commandNow = 1;
                         rc = fork();
                     }
                     if (rc == 0) {
                         char *cmd_argv[10];
                         if (commandNow == 1) {
 //                            lsCommand(cmd_argv,arguments);
+//                            printf("%s",arguments[0]);
+
                             allCommand(cmd_argv,arguments,arguments[0]);
                         } else if (commandNow == 2) {
                             char* path;
@@ -178,11 +197,12 @@ int main(int argc , char *argv[]) {
                                 if (chdir(path) == -1) {
                                     errMessage();
                             }
-                        }else if (commandNow == 3){
-                            catCommand(cmd_argv,arguments);
-                        }else if (commandNow == 4){
-                            pwdCommand(cmd_argv);
                         }
+//                        else if (commandNow == 3){
+//                            catCommand(cmd_argv,arguments);
+//                        }else if (commandNow == 4){
+//                            pwdCommand(cmd_argv);
+//                        }
                         else if (commandNow == 5){
                             pathCommand(arguments);
                         }
@@ -213,6 +233,7 @@ void pathCommand(char *pString[5]) {
 //            consider the access() system call. For example, when the user types ls,
 //            and path is set to include both /bin and /usr/bin, try access("/bin/ls", X_OK).
 //            If that fails, try "/usr/bin/ls". If that fails too, it is an error.
+
 //            Your initial shell path should contain one directory: /bin
 //if
 //if (access("/bin/ls", X_OK)){
