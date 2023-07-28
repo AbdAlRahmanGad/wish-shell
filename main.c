@@ -51,8 +51,19 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command){
                 printf("%s", "error");
 
 }
+void fromFile(FILE *fp) {
+    char * line = NULL;
+    size_t len = 0;
+    fp = fopen("database.txt", "r");
+    if (fp == NULL){
+        exit(EXIT_FAILURE);
+    }
+    while ((getline(&line, &len, fp)) != -1) {
+        printf("%s", line);
+    }
+}
 int main(int argc , char *argv[]) {
-    printf("wish> ");
+
     paths[0] = "/bin/";
 
     char *text = NULL;
@@ -67,14 +78,24 @@ int main(int argc , char *argv[]) {
     ////// look at the commmands -l  -wall    {if statement}    Done
     ////// path Done
 
-    ////// batch mode
+    ////// batch mode Done
     ////// redirection
 
 
     ///// remainng batch mode and redirection
+    FILE *fp = stdin;
 
-
-    while(getline(&text ,&lengh,stdin)){
+    if(argc==2){
+        fp = fopen(argv[1], "r");
+        if (fp == NULL){
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
+        fp = stdin;
+    if(fp == stdin)
+        printf("wish> ");
+    while(getline(&text ,&lengh,fp) != -1){
         char* tmp = strdup(text);
         char* cntString = strdup(text);
         int cnt=0;
@@ -137,9 +158,12 @@ int main(int argc , char *argv[]) {
             exit(0);
         }
         wait(0);
+        if(fp == stdin)
         printf("wish> ");
-
+//        else
+//            return 0;
     }
+
     return 0;
 }
 
