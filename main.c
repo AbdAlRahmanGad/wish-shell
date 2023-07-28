@@ -6,6 +6,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <sys/fcntl.h>
 
 void pathCommand(char *pString[5]);
 
@@ -15,9 +20,17 @@ void errMessage(){
     write(STDERR_FILENO, error_message, strlen(error_message));
 }
 char *paths[100];
-void allCommand( char *cmd_argv[10],char *args[] , char *command){
+int rediFile=-1;
+//int stdout_copy;
+void allCommand( char *cmd_argv[10],char *args[] , char *command,bool redi ){
+//    dup2(stdout_copy, 1);
     int i = 1;
-    for (; i < 5; ++i) {
+    for (; i < 100; ++i) {
+        if(redi){
+            if(strcmp(args[i],">") == 0 ){
+                break;
+            }
+        }
         if(args[i]== NULL){
             cmd_argv[i] = NULL;
             break;
@@ -34,16 +47,31 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command){
             break;
         }
     }
-
-//    paths[0] = "/bin/";
     for (int j = 0; j < 100; ++j) {
         char result[100];
-    strcpy(result,paths[j]); // copy string one into the result.
+    strcpy(result,paths[j]);
     strcat(result,command);
         cmd_argv[0] = result;
 
         if (access(result, X_OK) == 0){
+            if(redi == true){
+//                (void) close(STDOUT_FILENO);
+//                while ((args[i+1] = strdup(strsep(&args[i+1], "\n"))) != NULL) {
+//                    break;
+//                }
+//                   FILE *fp =
+
+
+//                           open("database.txt", O_WRONLY|O_TRUNC);
+                rediFile =   open(args[i+1],O_WRONLY|O_TRUNC|O_CREAT);
+            }
+//            else{
+////                open(STDOUT_FILENO,O_WRONLY);
+////                (void) open(STDOUT_FILENO);
+//            }
+
             execv(result, cmd_argv);
+
         }else{
             printf("%s", command);
         }
@@ -51,17 +79,17 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command){
                 printf("%s", "error");
 
 }
-void fromFile(FILE *fp) {
-    char * line = NULL;
-    size_t len = 0;
-    fp = fopen("database.txt", "r");
-    if (fp == NULL){
-        exit(EXIT_FAILURE);
-    }
-    while ((getline(&line, &len, fp)) != -1) {
-        printf("%s", line);
-    }
-}
+//void fromFile(FILE *fp) {
+//    char * line = NULL;
+//    size_t len = 0;
+//    fp = fopen("database.txt", "r");
+//    if (fp == NULL){
+//        exit(EXIT_FAILURE);
+//    }
+//    while ((getline(&line, &len, fp)) != -1) {
+//        printf("%s", line);
+//    }
+//}
 int main(int argc , char *argv[]) {
 
     paths[0] = "/bin/";
@@ -77,13 +105,13 @@ int main(int argc , char *argv[]) {
     ///// exit issue Done
     ////// look at the commmands -l  -wall    {if statement}    Done
     ////// path Done
-
     ////// batch mode Done
+
+
+
     ////// redirection
-
-
-    ///// remainng batch mode and redirection
-    FILE *fp = stdin;
+    ///// remainng redirection
+    FILE *fp;
 
     if(argc==2){
         fp = fopen(argv[1], "r");
@@ -95,18 +123,46 @@ int main(int argc , char *argv[]) {
         fp = stdin;
     if(fp == stdin)
         printf("wish> ");
-    while(getline(&text ,&lengh,fp) != -1){
+
+    bool isRedirect = false;
+//    int mxCnt = 10e5;
+//    int
+//    stdout_copy = dup(1);
+
+    while(getline(&text ,&lengh,fp)){
+//        open("/dev/tty",O_WRONLY);
+//        if(rediFile!=-1){
+//            close(rediFile);
+//        }
+//        dup2(stdout_copy, 1);
+//        close(stdout_copy);
+//        fopen(stdout, "w");
+
+        int mxCnt = 10e5;
+
         char* tmp = strdup(text);
         char* cntString = strdup(text);
         int cnt=0;
         char* arguments[100];
         while ((s = strsep(&cntString, " ")) != NULL ) {
-            if(strcmp(s,  "\0") == 0 || strcmp(s,  "\n") == 0)
-            {
+            if(strcmp(s,  "\0") == 0 || strcmp(s,  "\n") == 0) {
                 continue;
             }
+
                 arguments[cnt]=s;
                 cnt++;
+            if(strcmp(s,">") == 0){
+                if(isRedirect == false)
+                mxCnt = cnt+1;
+                isRedirect = true;
+            }
+//            printf("%s",s);
+
+        }
+        if(cnt > mxCnt){
+            if(fp == stdin)
+                printf("wish> ");
+            continue;
         }
 //        printf("\n%d",cnt);
 
@@ -126,18 +182,30 @@ int main(int argc , char *argv[]) {
                         rc = fork();
                     }
                     else if (strcmp(s, "path") == 0 || strcmp(s, "path\n") == 0){
-                        commandNow = 5;
+                        commandNow = 3;
                         rc = fork();
                     }
 //                    else if(strcmp(s, "path\n") == 0)
                     else{
                         commandNow = 1;
+                        int stdout_copy = dup(1);
+                        if(isRedirect == true){
+                            close(1);
+                        }
                         rc = fork();
+                        if(isRedirect == true){
+                            close(rediFile);
+                        }
+                        dup2(stdout_copy, 1);
+                        close(stdout_copy);
                     }
                     if (rc == 0) {
                         char *cmd_argv[10];
                         if (commandNow == 1) {
-                            allCommand(cmd_argv,arguments,arguments[0]);
+//                            dup2(stdout_copy, 1);
+                            bool red = isRedirect;
+                            isRedirect=false;
+                            allCommand(cmd_argv,arguments,arguments[0],red);
                         } else if (commandNow == 2) {
                             char *path;
                             while ((path = strsep(&arguments[1], "\n")) != NULL) {
@@ -147,7 +215,7 @@ int main(int argc , char *argv[]) {
                                 errMessage();
                             }
                         }
-                        else if (commandNow == 5) {
+                        else if (commandNow == 3) {
                             pathCommand(arguments);
                         }
                     }
@@ -160,29 +228,18 @@ int main(int argc , char *argv[]) {
         wait(0);
         if(fp == stdin)
         printf("wish> ");
-//        else
-//            return 0;
     }
 
     return 0;
 }
 
-///// remainng Path Commands and check '/' in path commands and pathc mode and redirection
-
 void pathCommand(char *pString[100]) {
     memset(paths, 0, sizeof paths);
-
-//    if(pString[1]){}
-//    printf("%s",pString[0]);
     if(pString[1] == NULL){
         return;
     }
-//    printf("%s",pString[1]);
-    int i = 1;
 
-//    char end_char = file_name[strlen(file_name)-1];
-//    strlen(paths[i]);
-//    i = 5;
+    int i = 1;
     for (; i < 100; ++i) {
         if(pString[i] == NULL){
             break;
@@ -191,55 +248,9 @@ void pathCommand(char *pString[100]) {
         while ((pString[i] = strdup(strsep(&p, "\n"))) != NULL) {
             break;
         }
-//        if(pString[i][strlen(pString[i])-1] != '/'){
-////            char result[100];
-////            strcpy(paths[i],pString[i]);
-////            paths[i] = result;
-//        }
-//        else
         paths[i-1] = pString[i];
         if(pString[i][strlen(pString[i])-1] != '/') {
             strcat(paths[i - 1], "/");
         }
     }
-//    char *p = strdup(paths[i - 2]);
-//    while ((paths[i - 2] = strdup(strsep(&p, "\n"))) != NULL) {
-//        break;
-//    }
-//    for (int i = 0; i < 100; ++i) {
-//        if(paths[i] == NULL){
-//            break;
-//        }
-//        printf("%s ", paths[i]);
-//    }
-//    printf("%s", paths[0]);
-////    printf("%s", pString[0]);
-//    printf("%s", paths[1]);
-////    printf("%s", pString[1]);
-//    printf("%s", paths[2]);
-////    printf("%s", pString[2]);
-//    printf("%s", paths[3]);
-//    printf("%s", pString[3]);
-
-    //    Important: Note that the shell itself does not implement ls or other commands
-        //    (except built-ins).
-        //    All it does is find those executables in one of the
-        //    directories specified by path and create a new process to run them.
-//            To check if a particular file exists in a directory and is executable,
-//            consider the access() system call. For example, when the user types ls,
-//            and path is set to include both /bin and /usr/bin, try access("/bin/ls", X_OK).
-//            If that fails, try "/usr/bin/ls". If that fails too, it is an error.
-
-//            Your initial shell path should contain one directory: /bin
-//if
-///  0 or more commands
-///  always override
-///
-
-//    paths
-
-//if (access("/bin/ls", X_OK)){
-
-//}
-//    path /bin /usr/bin
 }
