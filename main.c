@@ -35,7 +35,7 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command){
         }
     }
 
-    paths[0] = "/bin/";
+//    paths[0] = "/bin/";
     for (int j = 0; j < 100; ++j) {
         char result[100];
     strcpy(result,paths[j]); // copy string one into the result.
@@ -65,22 +65,20 @@ int main(int argc , char *argv[]) {
     ///// exit done
     ///// exit issue Done
     ////// look at the commmands -l  -wall    {if statement}    Done
+    ////// path Done
 
     ////// batch mode
     ////// redirection
 
 
-///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
-///// remainng Path Commands and check '/' in path commands and pathc mode and redirection 
-///// remainng Path Commands and check '/' in path commands and pathc mode and redirection
+    ///// remainng batch mode and redirection
 
 
-    ///// batch mode
     while(getline(&text ,&lengh,stdin)){
         char* tmp = strdup(text);
         char* cntString = strdup(text);
         int cnt=0;
-        char* arguments[5];
+        char* arguments[100];
         while ((s = strsep(&cntString, " ")) != NULL ) {
             if(strcmp(s,  "\0") == 0 || strcmp(s,  "\n") == 0)
             {
@@ -106,10 +104,11 @@ int main(int argc , char *argv[]) {
                         if(cnt == 2)
                         rc = fork();
                     }
-                    else if (strcmp(s, "path") == 0){
+                    else if (strcmp(s, "path") == 0 || strcmp(s, "path\n") == 0){
                         commandNow = 5;
                         rc = fork();
                     }
+//                    else if(strcmp(s, "path\n") == 0)
                     else{
                         commandNow = 1;
                         rc = fork();
@@ -144,10 +143,64 @@ int main(int argc , char *argv[]) {
     return 0;
 }
 
-void pathCommand(char *pString[5]) {
-    //    Important: Note that the shell itself does not implement ls or other commands (except built-ins).
-    //    All it does is find those executables in one of the
-    //    directories specified by path and create a new process to run them.
+///// remainng Path Commands and check '/' in path commands and pathc mode and redirection
+
+void pathCommand(char *pString[100]) {
+    memset(paths, 0, sizeof paths);
+
+//    if(pString[1]){}
+//    printf("%s",pString[0]);
+    if(pString[1] == NULL){
+        return;
+    }
+//    printf("%s",pString[1]);
+    int i = 1;
+
+//    char end_char = file_name[strlen(file_name)-1];
+//    strlen(paths[i]);
+//    i = 5;
+    for (; i < 100; ++i) {
+        if(pString[i] == NULL){
+            break;
+        }
+        char *p = strdup(pString[i]);
+        while ((pString[i] = strdup(strsep(&p, "\n"))) != NULL) {
+            break;
+        }
+//        if(pString[i][strlen(pString[i])-1] != '/'){
+////            char result[100];
+////            strcpy(paths[i],pString[i]);
+////            paths[i] = result;
+//        }
+//        else
+        paths[i-1] = pString[i];
+        if(pString[i][strlen(pString[i])-1] != '/') {
+            strcat(paths[i - 1], "/");
+        }
+    }
+//    char *p = strdup(paths[i - 2]);
+//    while ((paths[i - 2] = strdup(strsep(&p, "\n"))) != NULL) {
+//        break;
+//    }
+//    for (int i = 0; i < 100; ++i) {
+//        if(paths[i] == NULL){
+//            break;
+//        }
+//        printf("%s ", paths[i]);
+//    }
+//    printf("%s", paths[0]);
+////    printf("%s", pString[0]);
+//    printf("%s", paths[1]);
+////    printf("%s", pString[1]);
+//    printf("%s", paths[2]);
+////    printf("%s", pString[2]);
+//    printf("%s", paths[3]);
+//    printf("%s", pString[3]);
+
+    //    Important: Note that the shell itself does not implement ls or other commands
+        //    (except built-ins).
+        //    All it does is find those executables in one of the
+        //    directories specified by path and create a new process to run them.
 //            To check if a particular file exists in a directory and is executable,
 //            consider the access() system call. For example, when the user types ls,
 //            and path is set to include both /bin and /usr/bin, try access("/bin/ls", X_OK).
@@ -155,6 +208,12 @@ void pathCommand(char *pString[5]) {
 
 //            Your initial shell path should contain one directory: /bin
 //if
+///  0 or more commands
+///  always override
+///
+
+//    paths
+
 //if (access("/bin/ls", X_OK)){
 
 //}
