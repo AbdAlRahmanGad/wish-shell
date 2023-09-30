@@ -1,20 +1,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/wait.h>
-#include <unistd.h>
 #include <sys/fcntl.h>
 
 void pathCommand(char *pString[5]);
 
-//void printAll(FILE *pFile);
 void errMessage(){
     char error_message[30] = "An error has occurred\n";
     write(STDERR_FILENO, error_message, strlen(error_message));
@@ -27,15 +20,18 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command,bool redi ){
     int i = 1;
 
     for (; i < 100; ++i) {
-        if(redi){
-            if(strcmp(args[i],">") == 0 ){
-                cmd_argv[i] = NULL;
-                break;
-            }
-        }
         if(args[i]== NULL){
             cmd_argv[i] = NULL;
             break;
+        }
+        if(strcmp(args[i],">") == 0 ){
+            redi = true;
+            cmd_argv[i] = NULL;
+            break;
+        }
+        if(strcmp(args[i],">\n") == 0){
+            errMessage();
+            return;
         }
         cmd_argv[i] = args[i];
     }
@@ -43,7 +39,6 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command,bool redi ){
     while ((command = strdup(strsep(&path, "\n"))) != NULL ) {
         break;
     }
-
     if(i!=1) {
         char *p = strdup(cmd_argv[i - 1]);
         while ((cmd_argv[i - 1] = strdup(strsep(&p, "\n"))) != NULL) {
@@ -64,21 +59,23 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command,bool redi ){
                     break;
                 }
 //                (void) close(STDOUT_FILENO);
-
 //                open(  args[i+1], O_CREAT|O_TRUNC|O_RDWR|O_APPEND,S_IRWXU);
-//                puts("maaaaan");
 //                int cc = fork();
-                if(fork()  == 0) {
-                    stdout_fd = dup(STDOUT_FILENO);
+                if(args[i + 2] == NULL) {
+                    if (fork() == 0) {
+                        stdout_fd = dup(STDOUT_FILENO);
 //                    close(STDOUT_FILENO);
-                    rediFile = open(args[i + 1], O_CREAT | O_TRUNC | O_RDWR | O_APPEND, S_IRWXU);
-                    dup2(rediFile, STDOUT_FILENO);
+                        rediFile = open(args[i + 1], O_CREAT | O_TRUNC | O_RDWR | O_APPEND, S_IRWXU);
+                        dup2(rediFile, STDOUT_FILENO);
 //                    close(rediFile);
-                    execv(result, cmd_argv);
+                        execv(result, cmd_argv);
+                    }
+                    wait(0);
+                    dup2(stdout_fd, STDOUT_FILENO);
+                }else{
+                    errMessage();
+                    return;
                 }
-                wait(0);
-                dup2(stdout_fd, STDOUT_FILENO);
-
             }
             else{
                 if(fork()  == 0) {
@@ -86,15 +83,8 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command,bool redi ){
                 }
                 wait(0);
             }
-//            execv(result, cmd_argv);
-
         }
         if(paths[j]==NULL)break;
-
-
-//        else{
-////            printf("%s", command);
-//        }
     }
     if(is_executed == 0)
     errMessage();
@@ -132,39 +122,61 @@ int main(int argc , char *argv[]) {
 
     ////// redirection
     ///// remainng redirection
+    bool isFile = false;
     FILE *fp;
-
-    if(argc==2){
+    if(argc == 1 ){
+        fp = stdin;
+    }
+    else if(argc==2){
+        isFile = true;
         fp = fopen(argv[1], "r");
         if (fp == NULL){
+            errMessage();
             exit(EXIT_FAILURE);
+//            exit(0);
         }
     }
-    else
-        fp = stdin;
+    else{
+        errMessage();
+        exit(EXIT_FAILURE);
+    }
     if(fp == stdin)
         printf("wish> ");
 
-    bool isRedirect = false;
+//    bool isRedirect = false;
     while(getline(&text ,&lengh,fp)){
+        if (isFile == true && feof(fp))
+        {
+            exit(0);
+        }
+        if(strcmp(text,"\n") == NULL){
+            if(fp == stdin)
+                printf("wish> ");
+            continue;
+        }
         commandNow = -1;
         int mxCnt = 10e5;
-        if(text == NULL)continue;
         char* tmp = strdup(text);
         char* cntString = strdup(text);
         int cnt=0;
         char* arguments[100];
         while ((s = strsep(&cntString, " ")) != NULL ) {
+
             if(strcmp(s,  "\0") == 0 || strcmp(s,  "\n") == 0) {
                 continue;
             }
                 arguments[cnt]=s;
                 cnt++;
-            if(strcmp(s,">") == 0){
-                if(isRedirect == false)
-                mxCnt = cnt+1;
-                isRedirect = true;
-            }
+//            if(strcmp(s,">") == 0){
+//                if(isRedirect == false)
+//                mxCnt = cnt+1;
+//                isRedirect = true;
+//            }
+        }
+        if(cnt == 0 ){
+            if(fp == stdin)
+                printf("wish> ");
+            continue;
         }
         if(cnt > mxCnt){
             if(fp == stdin)
@@ -192,30 +204,20 @@ int main(int argc , char *argv[]) {
                     }
                     else if (strcmp(s, "path") == 0 || strcmp(s, "path\n") == 0){
                         commandNow = 3;
-//                        rc = fork();
                     }
                     else{
-
                             commandNow = 1;
-//                            rc = fork();
-
                     }
-//                    if (rc == 0) {
                         char *cmd_argv[10];
                         if (commandNow == 1) {
                             bool red = false;
-                            if (isRedirect)
-                                red = true;
-                            isRedirect = false;
+//                            if (isRedirect)
+//                                red = true;
+//                            isRedirect = false;
                             allCommand(cmd_argv, arguments, arguments[0], red);
-
-                            if (red) close(rediFile);
+//                            if (red) close(rediFile);
                             break;
                         }
-//                        break;
-
-//                    }
-
                         if (commandNow == 2) {
                             char *path;
                             while ((path = strsep(&arguments[1], "\n")) != NULL) {
@@ -229,13 +231,9 @@ int main(int argc , char *argv[]) {
                             pathCommand(arguments);
                         }
                     }
-
-
                 break;
                 x++;
         }
-        wait(0);
-
         if(strcmp(text,"exit\n") == 0){
             exit(0);
         }
@@ -267,11 +265,3 @@ void pathCommand(char *pString[100]) {
         }
     }
 }
-
-
-//path tests
-//p1.sh
-//path
-//p1.sh
-//ls
-//exit
