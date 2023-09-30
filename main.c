@@ -149,7 +149,7 @@ int main(int argc , char *argv[]) {
     char *text = NULL;
     size_t lengh=0;
     char*s;
-    int rc;
+    int rc = -1;
     int commandNow = -1;
     ///// cd done
     ///// ls done
@@ -262,6 +262,7 @@ int main(int argc , char *argv[]) {
                             pathCommand(arguments);
                         }
                     }
+
                 }x++;
         }
         if(strcmp(text,"exit\n") == 0){
