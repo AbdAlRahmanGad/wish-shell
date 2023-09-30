@@ -21,18 +21,17 @@ void errMessage(){
 }
 char *paths[100];
 int rediFile=-1;
+int stdout_fd=-1;
 //int stdout_copy;
 void allCommand( char *cmd_argv[10],char *args[] , char *command,bool redi ){
-//    dup2(stdout_copy, 1);
     int i = 1;
     for (; i < 100; ++i) {
-//        if(redi){
+        if(redi){
             if(strcmp(args[i],">") == 0 ){
-//                i++;
                 cmd_argv[i] = NULL;
                 break;
             }
-//        }
+        }
         if(args[i]== NULL){
             cmd_argv[i] = NULL;
             break;
@@ -49,12 +48,8 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command,bool redi ){
             break;
         }
     }
-//    printf("%d", i);
-//    puts(args[1]);
-
 
     for (int j = 0; j < 100; ++j) {
-//        printf("%d", i);
         char result[100];
     strcpy(result,paths[j]);
     strcat(result,command);
@@ -65,69 +60,75 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command,bool redi ){
                 while ((args[i+1] = strdup(strsep(&args[i+1], "\n"))) != NULL) {
                     break;
                 }
-                (void) close(STDOUT_FILENO);
+//                (void) close(STDOUT_FILENO);
+
 //                open(  args[i+1], O_CREAT|O_TRUNC|O_RDWR|O_APPEND,S_IRWXU);
-             int x =   open(  args[i+1]
-                    , O_CREAT|O_TRUNC|O_RDWR|O_APPEND,S_IRWXU);
-//O_RDONLY
-//                rediFile =
-//                int x =  open(args[i+1],O_CREAT|O_TRUNC);
-//                int x =  open(  "/Users/abdogad/Downloads/ooooo.txt"
-//                , O_CREAT|O_RDWR|O_APPEND,S_IRWXU);
-//                dup2(fileno(x), STDOUT_FILENO);
-//                fclose(x);
-//                /Users/abdogad/Downloads
+//                puts("maaaaan");
+//                int cc = fork();
+                if(fork()  == 0) {
+                    stdout_fd = dup(STDOUT_FILENO);
+//                    close(STDOUT_FILENO);
+                    rediFile = open(args[i + 1], O_CREAT | O_TRUNC | O_RDWR | O_APPEND, S_IRWXU);
+                    dup2(rediFile, STDOUT_FILENO);
+//                    close(rediFile);
+                    execv(result, cmd_argv);
+                }
+                wait(0);
+//                puts("maaaaan");
+//                close(rediFile);
+                dup2(stdout_fd, STDOUT_FILENO);
+//                close(stdout_fd);
+
+//                dup2(rediFile, STDOUT_FILENO);
+//                close(rediFile);
+//                int stdin_copy = dup(0);
+//                int stdout_copy = dup(1);
+//                close(0);
+//                close(1);
+
+//                int file1 = open(...);
+//                int file2 = open(...);
+//                close(file1);
+//                close(file2);
+//                dup2(stdin_copy, 0);
+//                dup2(stdout_copy, 1);
+//                close(stdin_copy);
+//                close(stdout_copy);
+
 //                rediFile =
 //                if( (fopen("m.txt", "w")) == NULL) { perror(path);}
 //int x = STDOUT_FILENO;
 //                     x = fopen("ann.txt","w");
-//                dup2(rediFile, 1);
-
-//                close(rediFile);
 //                int  output_fd = creat(args[i+1], 0644);
-//                puts(args[i+1]);
-//
-//                printf("%s", args[0]);
 //                   FILE *fp =
 //                fopen(args[i+1], "w");
 //                           open("database.txt", O_WRONLY|O_TRUNC);
-//                rediFile =   open(args[i+1],O_CREAT);
+
             }
             else{
+//                if(stdout_fd != -1) {
+//                    dup2(stdout_fd, STDOUT_FILENO);
+//                    close(stdout_fd);
+//                }
+                execv(result, cmd_argv);
+
 //            fopen((const char *) stdout, "w");
 //            dup2(fileno(someopenfile), STDIN_FILENO);
-//            dup2(fileno(someotherfile), STDOUT_FILENO);
-//            dup2(fileno(somethirdopenfile), STDERR_FILENO);
 //            fclose(someopenfile);
-//            fclose(someotheropenfile);
-//            fclose(somethirdopenfile);
-//            execvp(args[0], args);
 //            int x = STDOUT_FILENO;
 //            (void) close(STDOUT_FILENO);
-//            fopen(x,O_WRONLY);
 //            write()
-                fflush(stdout);
-//                fgetpos(stdout);
-//                fd = dup(fileno(stdout));
-//                freopen(newStream, "w", stdout);
-//            (void) open(STDOUT_FILENO);
-            }
-//            int x
-//            =
-//            (void) close(STDOUT_FILENO);
-//
-//                    open(  "/Users/abdogad/Downloads/h.txt"
-//                    , O_CREAT|O_TRUNC|O_RDWR|O_APPEND,S_IRWXU);
-//                            int x =
-//                                    open(args[i+1],O_WRONLY|O_CREAT|O_TRUNC,S_IRWXU);
 
-            execv(result, cmd_argv);
+
+
+            }
+//            execv(result, cmd_argv);
 
         }else{
             printf("%s", command);
         }
     }
-                printf("%s", "error");
+    errMessage();
 
 }
 //void fromFile(FILE *fp) {
@@ -176,21 +177,10 @@ int main(int argc , char *argv[]) {
         printf("wish> ");
 
     bool isRedirect = false;
-//    int mxCnt = 10e5;
-//    int
-//    stdout_copy = dup(1);
-
     while(getline(&text ,&lengh,fp)){
-//        open("/dev/tty",O_WRONLY);
-//        if(rediFile!=-1){
-//            close(rediFile);
-//        }
-//        dup2(stdout_copy, 1);
-//        close(stdout_copy);
-//        fopen(stdout, "w");
 
         int mxCnt = 10e5;
-
+        if(text == NULL)continue;
         char* tmp = strdup(text);
         char* cntString = strdup(text);
         int cnt=0;
@@ -199,7 +189,6 @@ int main(int argc , char *argv[]) {
             if(strcmp(s,  "\0") == 0 || strcmp(s,  "\n") == 0) {
                 continue;
             }
-
                 arguments[cnt]=s;
                 cnt++;
             if(strcmp(s,">") == 0){
@@ -207,16 +196,12 @@ int main(int argc , char *argv[]) {
                 mxCnt = cnt+1;
                 isRedirect = true;
             }
-//            printf("%s",s);
-
         }
         if(cnt > mxCnt){
             if(fp == stdin)
                 printf("wish> ");
             continue;
         }
-//        printf("\n%d",cnt);
-
         arguments[cnt] = NULL;
         int x=0;
             while ((s = strsep(&tmp, " ")) != NULL ) {
@@ -227,10 +212,13 @@ int main(int argc , char *argv[]) {
                         else
                            errMessage();
                     }
-                    else if (strcmp(s, "cd") == 0) {
+                    else if (strcmp(s, "cd") == 0 || strcmp(s, "cd\n") == 0) {
                         commandNow = 2;
                         if(cnt == 2)
                         rc = fork();
+                        else{
+                            errMessage();
+                        }
                     }
                     else if (strcmp(s, "path") == 0 || strcmp(s, "path\n") == 0){
                         commandNow = 3;
@@ -253,12 +241,14 @@ int main(int argc , char *argv[]) {
                     if (rc == 0) {
                         char *cmd_argv[10];
                         if (commandNow == 1) {
-//                            dup2(stdout_copy, 1);
                             bool red = false;
                                 if(isRedirect)
-                             red = true;
-                            isRedirect=false;
-                            allCommand(cmd_argv,arguments,arguments[0],red);
+                                    red = true;
+                                    isRedirect = false;
+                                    allCommand(cmd_argv, arguments, arguments[0], red);
+
+                            if(red)    close(rediFile);
+
                         } else if (commandNow == 2) {
                             char *path;
                             while ((path = strsep(&arguments[1], "\n")) != NULL) {
@@ -272,7 +262,6 @@ int main(int argc , char *argv[]) {
                             pathCommand(arguments);
                         }
                     }
-/// repository
                 }x++;
         }
         if(strcmp(text,"exit\n") == 0){
