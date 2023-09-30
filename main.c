@@ -90,17 +90,6 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command,bool redi ){
     errMessage();
 
 }
-//void fromFile(FILE *fp) {
-//    char * line = NULL;
-//    size_t len = 0;
-//    fp = fopen("database.txt", "r");
-//    if (fp == NULL){
-//        exit(EXIT_FAILURE);
-//    }
-//    while ((getline(&line, &len, fp)) != -1) {
-//        printf("%s", line);
-//    }
-//}
 int main(int argc , char *argv[]) {
 
     paths[0] = "/bin/";
@@ -111,14 +100,10 @@ int main(int argc , char *argv[]) {
     int rc = -1;
     int commandNow = -1;
     ///// cd done
-    ///// ls done
     ///// exit done
     ///// exit issue Done
-    ////// look at the commmands -l  -wall    {if statement}    Done
     ////// path Done
     ////// batch mode Done
-
-
 
     ////// redirection
     ///// remainng redirection
