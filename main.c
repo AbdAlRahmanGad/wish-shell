@@ -8,6 +8,8 @@
 
 void pathCommand(char *pString[5]);
 
+void handleArguments(int argc, char *const *argv, bool *isFile, FILE **fp);
+
 void errMessage(){
     char error_message[30] = "An error has occurred\n";
     write(STDERR_FILENO, error_message, strlen(error_message));
@@ -90,143 +92,129 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command,bool redi ){
     errMessage();
 
 }
-int main(int argc , char *argv[]) {
+
+
+
+int main(int argc, char *argv[]) {
 
     paths[0] = "/bin/";
 
     char *text = NULL;
-    size_t lengh=0;
-    char*s;
+    size_t lengh = 0;
+    char *s;
     int rc = -1;
-    int commandNow = -1;
-    ///// cd done
-    ///// exit done
-    ///// exit issue Done
-    ////// path Done
-    ////// batch mode Done
-
-    ////// redirection
     ///// remainng redirection
-    bool isFile = false;
+
+    /// argumetns handling
+    bool isFile;
     FILE *fp;
-    if(argc == 1 ){
-        fp = stdin;
-    }
-    else if(argc==2){
-        isFile = true;
-        fp = fopen(argv[1], "r");
-        if (fp == NULL){
-            errMessage();
-            exit(EXIT_FAILURE);
-//            exit(0);
-        }
-    }
-    else{
-        errMessage();
-        exit(EXIT_FAILURE);
-    }
-    if(fp == stdin)
+    handleArguments(argc, argv, &isFile, &fp);
+    if (fp == stdin)
         printf("wish> ");
 
-//    bool isRedirect = false;
-    while(getline(&text ,&lengh,fp)){
-        if (isFile == true && feof(fp))
-        {
+    //    bool isRedirect = false;
+    while (getline(&text, &lengh, fp)) {
+
+        /// if end of file
+        if (isFile == true && feof(fp)) {
             exit(0);
         }
-        if(strcmp(text,"\n") == NULL){
-            if(fp == stdin)
+
+        /// if empty line
+        if (strcmp(text, "\n") == NULL) {
+            if (fp == stdin)
                 printf("wish> ");
             continue;
         }
-        commandNow = -1;
-        int mxCnt = 10e5;
-        char* tmp = strdup(text);
-        char* cntString = strdup(text);
-        int cnt=0;
-        char* arguments[100];
-        while ((s = strsep(&cntString, " ")) != NULL ) {
 
-            if(strcmp(s,  "\0") == 0 || strcmp(s,  "\n") == 0) {
+        int mxCnt = 10e5;
+        char *tmp = strdup(text);
+        char *cntString = strdup(text);
+        int cnt = 0;
+        char *arguments[100];
+        while ((s = strsep(&cntString, " \t\r")) != NULL) {
+
+            if (strcmp(s, "\0") == 0 || strcmp(s, "\n") == 0) {
                 continue;
             }
-                arguments[cnt]=s;
-                cnt++;
-//            if(strcmp(s,">") == 0){
-//                if(isRedirect == false)
-//                mxCnt = cnt+1;
-//                isRedirect = true;
-//            }
+            arguments[cnt] = s;
+            cnt++;
+            //            if(strcmp(s,">") == 0){
+            //                if(isRedirect == false)
+            //                mxCnt = cnt+1;
+            //                isRedirect = true;
+            //            }
         }
-        if(cnt == 0 ){
-            if(fp == stdin)
+        if (cnt == 0 || cnt > mxCnt) {
+            if (fp == stdin)
                 printf("wish> ");
             continue;
         }
-        if(cnt > mxCnt){
-            if(fp == stdin)
-                printf("wish> ");
-            continue;
-        }
+
         arguments[cnt] = NULL;
-        int x=0;
-            while ((s = strsep(&tmp, " ")) != NULL ) {
-                if(x==0) {
-                    if (strcmp(s, "exit") == 0 || strcmp(s, "exit\n") == 0) {
-                        if(cnt==1)
+//        int x = 0;
+        while ((s = strsep(&tmp, " ")) != NULL) {
+//            if (x == 0) {
+                if (strcmp(s, "exit") == 0 || strcmp(s, "exit\n") == 0) {
+                    if (cnt == 1)
                         exit(0);
-                        else
-                           errMessage();
-                    }
-                    else if (strcmp(s, "cd") == 0 || strcmp(s, "cd\n") == 0) {
-                        if(cnt == 2){
-                            commandNow = 2;
-                        }
-//                        rc = fork();
-                        else{
-                            errMessage();
-                        }
-                    }
-                    else if (strcmp(s, "path") == 0 || strcmp(s, "path\n") == 0){
-                        commandNow = 3;
-                    }
-                    else{
-                            commandNow = 1;
-                    }
-                        char *cmd_argv[10];
-                        if (commandNow == 1) {
-                            bool red = false;
-//                            if (isRedirect)
-//                                red = true;
-//                            isRedirect = false;
-                            allCommand(cmd_argv, arguments, arguments[0], red);
-//                            if (red) close(rediFile);
+                    else
+                        errMessage();
+                } else if (strcmp(s, "cd") == 0 || strcmp(s, "cd\n") == 0) {
+                    if (cnt == 2) {
+                        char *path;
+                        while ((path = strsep(&arguments[1], "\n")) != NULL) {
                             break;
                         }
-                        if (commandNow == 2) {
-                            char *path;
-                            while ((path = strsep(&arguments[1], "\n")) != NULL) {
-                                break;
-                            }
-                            if (chdir(path) == -1) {
-                                errMessage();
-                            }
+                        if (chdir(path) == -1) {
+                            errMessage();
                         }
-                        else if (commandNow == 3) {
-                            pathCommand(arguments);
-                        }
+                    }else {
+                        errMessage();
                     }
-                break;
-                x++;
+                    break;
+                    //                        rc = fork();
+                } else if (strcmp(s, "path") == 0 || strcmp(s, "path\n") == 0) {
+                    pathCommand(arguments);
+                } else {
+                    char *cmd_argv[10];
+                    bool red = false;
+                    //                            if (isRedirect)
+                    //                                red = true;
+                    //                            isRedirect = false;
+                    allCommand(cmd_argv, arguments, arguments[0], red);
+                    //                            if (red) close(rediFile);
+                    break;
+                }
+//            }
+//            break;
+//            x++;
         }
-        if(strcmp(text,"exit\n") == 0){
+        if (strcmp(text, "exit\n") == 0) {
             exit(0);
         }
-        if(fp == stdin)
-        printf("wish> ");
+        if (fp == stdin)
+            printf("wish> ");
     }
 
     return 0;
+}
+
+void handleArguments(int argc, char *const *argv, bool *isFile, FILE **fp) {
+    (*isFile) = false;
+    if (argc == 1) {
+        (*fp) = stdin;
+    } else if (argc == 2) {
+        (*isFile) = true;
+        (*fp) = fopen(argv[1], "r");
+        if ((*fp) == NULL) {
+            errMessage();
+            exit(EXIT_FAILURE);
+        }
+    } else {
+        errMessage();
+        exit(EXIT_FAILURE);
+    }
 }
 
 void pathCommand(char *pString[100]) {

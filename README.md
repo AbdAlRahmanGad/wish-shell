@@ -5,6 +5,7 @@ Program has some basic functionality. It has three build in commands:
 - path
 - cd
 - exit
+- Redirection commands in the pattern of `command > file`
 
 With path command user can change your current search paths where programs should be searched for. Cd command may be used to change current working directory and exit command exits from the program immediately.
 
@@ -12,7 +13,6 @@ Program supports also batch mode. User may start program with one parameter whic
 
 Things that are not yet included in the project:
 - Parallel commands
-- Redirection commands
 
 ## Ending words
 At least it's working 😅.
