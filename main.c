@@ -15,33 +15,33 @@ void errMessage(){
     write(STDERR_FILENO, error_message, strlen(error_message));
 }
 char *paths[100];
-int rediFile=-1;
-int stdout_fd=-1;
-//int stdout_copy;
-void allCommand( char *cmd_argv[10],char *args[] , char *command,bool redi ){
+int rediFile = -1;
+int stdout_fd = -1;
+// int stdout_copy;
+void allCommand(char *cmd_argv[10], char *args[], char *command, bool redi) {
     int i = 1;
 
     for (; i < 100; ++i) {
-        if(args[i]== NULL){
+        if (args[i] == NULL) {
             cmd_argv[i] = NULL;
             break;
         }
-        if(strcmp(args[i],">") == 0 ){
+        if (strcmp(args[i], ">") == 0) {
             redi = true;
             cmd_argv[i] = NULL;
             break;
         }
-        if(strcmp(args[i],">\n") == 0){
+        if (strcmp(args[i], ">\n") == 0) {
             errMessage();
             return;
         }
         cmd_argv[i] = args[i];
     }
-    char* path =  strdup(command);
-    while ((command = strdup(strsep(&path, "\n"))) != NULL ) {
+    char *path = strdup(command);
+    while ((command = strdup(strsep(&path, "\n"))) != NULL) {
         break;
     }
-    if(i!=1) {
+    if (i != 1) {
         char *p = strdup(cmd_argv[i - 1]);
         while ((cmd_argv[i - 1] = strdup(strsep(&p, "\n"))) != NULL) {
             break;
@@ -50,50 +50,51 @@ void allCommand( char *cmd_argv[10],char *args[] , char *command,bool redi ){
     int is_executed = 0;
     for (int j = 0; j < 100; ++j) {
         char result[100];
-        if(paths[j]!=NULL)
-        strcpy(result,paths[j]);
-        strcat(result,command);
+        if (paths[j] != NULL)
+            strcpy(result, paths[j]);
+        strcat(result, command);
         cmd_argv[0] = result;
-        if (access(result, X_OK) == 0){
+        if (access(result, X_OK) == 0) {
             is_executed = 1;
-            if(redi == true){
-                while ((args[i+1] = strdup(strsep(&args[i+1], "\n"))) != NULL) {
+            if (redi == true) {
+                while ((args[i + 1] = strdup(strsep(&args[i + 1], "\n"))) !=
+                       NULL) {
                     break;
                 }
-//                (void) close(STDOUT_FILENO);
-//                open(  args[i+1], O_CREAT|O_TRUNC|O_RDWR|O_APPEND,S_IRWXU);
-//                int cc = fork();
-                if(args[i + 2] == NULL) {
+                //                (void) close(STDOUT_FILENO);
+                //                open(  args[i+1],
+                //                O_CREAT|O_TRUNC|O_RDWR|O_APPEND,S_IRWXU); int
+                //                cc = fork();
+                if (args[i + 2] == NULL) {
                     if (fork() == 0) {
                         stdout_fd = dup(STDOUT_FILENO);
-//                    close(STDOUT_FILENO);
-                        rediFile = open(args[i + 1], O_CREAT | O_TRUNC | O_RDWR | O_APPEND, S_IRWXU);
+                        //                    close(STDOUT_FILENO);
+                        rediFile = open(args[i + 1],
+                                        O_CREAT | O_TRUNC | O_RDWR | O_APPEND,
+                                        S_IRWXU);
                         dup2(rediFile, STDOUT_FILENO);
-//                    close(rediFile);
+                        //                    close(rediFile);
                         execv(result, cmd_argv);
                     }
                     wait(0);
                     dup2(stdout_fd, STDOUT_FILENO);
-                }else{
+                } else {
                     errMessage();
                     return;
                 }
-            }
-            else{
-                if(fork()  == 0) {
+            } else {
+                if (fork() == 0) {
                     execv(result, cmd_argv);
                 }
                 wait(0);
             }
         }
-        if(paths[j]==NULL)break;
+        if (paths[j] == NULL)
+            break;
     }
-    if(is_executed == 0)
-    errMessage();
-
+    if (is_executed == 0)
+        errMessage();
 }
-
-
 
 int main(int argc, char *argv[]) {
 
